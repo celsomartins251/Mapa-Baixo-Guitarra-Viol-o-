@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#121212">
+    <title>Mapa do Contrabaixo e Violão - Por Celso Martins</title>
+    <style> 
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --accent-color: #00e676; /* Verde para Fundamental */
+            --note-color: #ffffff; /* Branco para demais notas */
+            --active-note: #ffeb3b; /* Amarelo quando tocando */
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background-color: var(--bg-color);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        /* Estilos do Ícone e Identidade do App */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0 15px 0;
+        }
+
+        .brand-icon {
+            width: 52px;
+            height: 52px;
+            filter: drop-shadow(0px 4px 10px rgba(0, 230, 118, 0.3));
+        }
+
+        .brand-titles {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .brand-titles h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00e676 0%, #29b6f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-titles span {
+            font-size: 13px;
+            color: #aaa;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-tabs {
+            width: 100%;
+            max-width: 1450px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: #333;
+            color: #fff;
+            border: 2px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: #29b6f6;
+            color: #000;
+            border-color: #29b6f6;
+        }
+
+        .app {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .controls-panel {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 1450px;
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        select, button, input {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background: #333;
+            color: #fff;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #29b6f6;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        .bpm-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bpm-btn {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Estilo Customizado do Braço de Instrumentos Integrado */
+        .fretboard-container {
+            width: 100%;
+            max-width: 1480px;
+            overflow-x: auto;
+            margin-top: 15px;
+            background: var(--panel-bg);
+            padding: 20px 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: flex-start;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+        }
+
+        .fretboard {
+            position: relative;
+            display: flex;
+            width: 1450px;
+            height: 170px;
+            background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), 
+                        repeating-linear-gradient(90deg, #1d120c, #2b1a12 2px, #180f0a 4px);
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+            user-select: none;
+            margin-inline: auto;
+        }
+
+        /* Braço de Violão específico (madeira mais clara/acústica tradicional) */
+        .fretboard.guitar-board {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                        repeating-linear-gradient(90deg, #3d2817, #4e331e 2px, #2c1c0f 4px);
+            height: 200px;
+        }
+
+        .open-strings-space {
+            width: 45px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .nut {
+            width: 12px;
+            height: 100%;
+            background: linear-gradient(to right, #e0e0e0, #ffffff 40%, #b5b5b5);
+            border-right: 2px solid #222;
+            z-index: 5;
+        }
+
+        .fret-space {
+            position: relative;
+            flex: 1;
+            height: 100%;
+            border-right: 3px solid;
+            border-image: linear-gradient(to right, #7d848a, #d1d5db, #52585e) 1;
+            box-shadow: 2px 0 3px rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fret-number {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: #a89f96;
+            font-family: sans-serif;
+            font-size: 13px;
+            font-weight: bold;
+            z-index: 3;
+        }
+
+        .inlay {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #d2c8be 60%, #9e948a 100%);
+            box-shadow: inset 0 0 2px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.8);
+            z-index: 2;
+        }
+        .inlay-single { top: 50%; }
+        .inlay-double-top { top: 22%; }
+        .inlay-double-bottom { top: 78%; }
+
+        .strings-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        .string-line {
+            width: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                #888888 0px,
+                #e6e6e6 1px,
+                #444444 2px
+            );
+            box-shadow: 0 3px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Calibres das cordas de Baixo */
+        .string-bass-1 { height: 2.5px; } 
+        .string-bass-2 { height: 3.5px; } 
+        .string-bass-3 { height: 4.5px; } 
+        .string-bass-4 { height: 5.5px; } 
+        .string-bass-5 { height: 6.5px; } 
+
+        /* Calibres das cordas de Violão (6 cordas: E B G D A E) */
+        .string-guit-1 { height: 1.2px; background: #cccccc; } /* E agudo */
+        .string-guit-2 { height: 1.6px; background: #cccccc; } /* B */
+        .string-guit-3 { height: 2.1px; background: #cccccc; } /* G */
+        .string-guit-4 { height: 2.8px; background: repeating-linear-gradient(90deg, #b0b0b0, #ffffff 1px, #666 2px); } /* D */
+        .string-guit-5 { height: 3.5px; background: repeating-linear-gradient(90deg, #b0b0b0, #ffffff 1px, #666 2px); } /* A */
+        .string-guit-6 { height: 4.5px; background: repeating-linear-gradient(90deg, #b0b0b0, #ffffff 1px, #666 2px); } /* E grave */
+
+        /* Container virtual de notas absoluto por corda alinhado às casas */
+        .fretboard-grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            z-index: 7;
+            pointer-events: none;
+        }
+
+        .virtual-string-row {
+            display: flex;
+            width: 100%;
+            flex: 1 1 0;
+            height: auto;
+            min-height: 0;
+            pointer-events: none;
+        }
+
+        .virtual-cell {
+            position: relative;
+            height: 100%;
+            min-height: 0;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .virtual-cell.open-space { width: 45px; }
+        .virtual-cell.nut-space { width: 12px; }
+        .virtual-cell.fret-cell { flex: 1; }
+
+        /* Nota visual */
+        .note {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--note-color);
+            color: #000;
+            font-size: 8.5px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 4px rgba(0,0,0,0.8);
+            visibility: hidden;
+            text-align: center;
+            line-height: 1;
+            white-space: pre-line;
+            z-index: 8;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+
+        .note.visible { visibility: visible; }
+        .note.root { background-color: var(--accent-color); color: #000; }
+        .note.playing { background-color: var(--active-note) !important; transform: scale(1.2); box-shadow: 0 0 8px #fff; }
+
+        /* Estilos da Tabela do Campo Harmônico */
+        .ch-container {
+            width: 100%;
+            max-width: 1450px;
+            overflow-x: auto;
+            margin-top: 15px;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .ch-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+            text-align: center;
+        }
+
+        .ch-table th, .ch-table td {
+            border: 1px solid #444;
+            padding: 10px 5px;
+        }
+
+        .ch-table th {
+            background: #2a2a2a;
+            color: #29b6f6;
+            font-size: 13px;
+        }
+
+        .ch-card {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .ch-card.primary { background-color: #00e676; }
+        .ch-card.secondary { background-color: #fff176; }
+
+        .ch-degree { font-size: 11px; opacity: 0.85; text-transform: uppercase; }
+        .ch-chord { font-size: 15px; }
+        .ch-mode { font-size: 10px; font-weight: normal; font-style: italic; opacity: 0.8; }
+
+        .modes-info-panel {
+            margin-top: 20px;
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .modes-info-panel h3 {
+            margin-top: 0;
+            color: #29b6f6;
+            text-align: center;
+            font-size: 16px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .mode-card-info {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #29b6f6;
+        }
+
+        .mode-card-info h4 { margin: 0 0 5px 0; color: #00e676; font-size: 14px; }
+        .mode-card-info ul { margin: 0; padding-left: 18px; font-size: 12px; color: #ccc; }
+        .mode-card-info li { margin-bottom: 3px; }
+
+        .mode-visualizer-panel {
+            margin-top: 20px;
+            background: #1e1e1e;
+            border: 2px solid #00e676;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mode-visualizer-panel h3 { margin: 0; color: #00e676; font-size: 16px; text-align: center; }
+        .mode-visualizer-controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+
+        /* Painel de Teoria Básica */
+        .theory-container {
+            width: 100%;
+            max-width: 1450px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .theory-section {
+            background: #252525;
+            border-left: 4px solid #29b6f6;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .theory-section h2 {
+            margin-top: 0;
+            color: #29b6f6;
+            font-size: 20px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .theory-section h3 { color: #00e676; margin: 15px 0 8px 0; font-size: 16px; }
+        .theory-section p { margin: 8px 0; font-size: 14px; color: #ddd; }
+        .theory-section ul { padding-left: 20px; font-size: 14px; color: #ccc; }
+        .theory-section li { margin-bottom: 8px; }
+
+        .theory-diagram-box {
+            background: #181818;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cipher-columns { display: flex; gap: 20px; justify-content: center; width: 100%; max-width: 380px; }
+        .cipher-col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .cipher-col-title { text-align: center; font-size: 12px; font-weight: bold; color: #aaa; margin-bottom: 6px; }
+        .cipher-card { padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; font-size: 14px; color: #000; }
+        .cipher-card.alpha { background-color: #ffab91; }
+        .cipher-card.notes { background-color: #a5d6a7; }
+
+        .lead-sheet-box {
+            background: #ffffff;
+            color: #000;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+        }
+
+        .lead-sheet-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 4px;
+            margin-bottom: 10px;
+        }
+
+        .lead-sheet-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px 4px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .lead-sheet-cell { border-right: 1px solid #000; padding: 4px 2px; }
+        .lead-sheet-cell:nth-child(4n) { border-right: none; }
+
+        .pm-table {
+            width: 100%;
+            max-width: 500px;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .pm-table td { border: 1px solid #ccc; padding: 8px; letter-spacing: 4px; }
+        .pm-table tr:nth-child(even) { background-color: #f2f2f2; }
+        /* Ajustes para telas pequenas: o braço continua navegável por toque,
+           enquanto os painéis e o polimetrônomo se reorganizam verticalmente. */
+        @media (max-width: 760px) {
+            body { padding: 8px; }
+            .brand-header { gap: 10px; margin-top: 6px; }
+            .brand-icon { width: 44px; height: 44px; }
+            .brand-titles h1 { font-size: 18px; }
+            .brand-titles span { font-size: 10px; }
+            .mode-tabs { gap: 6px; width: 100%; }
+            .tab-btn { flex: 1 1 45%; min-height: 44px; padding: 9px 6px; font-size: 11px; }
+            .controls-panel { padding: 12px; justify-content: stretch; }
+            .control-group { flex: 1 1 145px; min-width: 0; }
+            .control-group select { width: 100%; min-width: 0; }
+            .control-group:last-child { flex-basis: 100%; }
+            .fretboard-container { padding: 14px 0; margin-left: -8px; margin-right: -8px; width: calc(100% + 16px); }
+            .fretboard { margin-left: 8px; margin-right: 8px; }
+            .ch-container, .theory-container { padding: 10px; }
+            .theory-section { padding: 14px; }
+            .app .top { align-items: flex-start !important; flex-direction: column !important; }
+            .app .badge { align-self: flex-start; }
+            .app .main { grid-template-columns: 1fr !important; }
+            .app .tempo { margin-left: 0 !important; width: 100%; justify-content: space-between; }
+            .app .ratio-row { grid-template-columns: 1fr 24px 1fr !important; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho Principal -->
+    <header class="brand-header">
+        <svg class="brand-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" rx="22" fill="url(#bg-grad)"/>
+            <rect x="15" y="15" width="70" height="70" rx="14" fill="#1e1e1e" stroke="#333" stroke-width="2"/>
+            <line x1="32" y1="20" x2="32" y2="80" stroke="#b0bec5" stroke-width="4"/>
+            <line x1="68" y1="20" x2="68" y2="80" stroke="#b0bec5" stroke-width="4"/>
+            <line x1="20" y1="32" x2="80" y2="32" stroke="#666" stroke-width="1.5"/>
+            <line x1="20" y1="44" x2="80" y2="44" stroke="#888" stroke-width="2"/>
+            <line x1="20" y1="56" x2="80" y2="56" stroke="#aaa" stroke-width="2.5"/>
+            <line x1="20" y1="68" x2="80" y2="68" stroke="#ccc" stroke-width="3"/>
+            <circle cx="50" cy="56" r="8" fill="#00e676" stroke="#ffffff" stroke-width="2"/>
+            <circle cx="68" cy="44" r="6" fill="#29b6f6" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="32" cy="68" r="6" fill="#ffeb3b" stroke="#ffffff" stroke-width="1.5"/>
+            <defs>
+                <linearGradient id="bg-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#1a1a1a"/>
+                    <stop offset="1" stop-color="#0d0d0d"/>
+                </linearGradient>
+            </defs>
+        </svg>
+        <div class="brand-titles">
+            <h1>Mapa do Contrabaixo e Violão</h1>
+            <span>INSTRUMENTOS & TEORIA • POR CELSO MARTINS</span>
+        </div>
+    </header>
+
+    <!-- Alternância de Abas -->
+    <div class="mode-tabs">
+        <button class="tab-btn active" id="tab-scales">ESCALAS E MODOS</button>
+        <button class="tab-btn" id="tab-arpeggios">TRÍADES E ARPEJOS</button>
+        <button class="tab-btn" id="tab-ch">CAMPO HARMÔNICO</button>
+        <button class="tab-btn" id="tab-theory">TEORIA BÁSICA</button>
+    </div>
+
+    <!-- Painel de Controles -->
+    <div class="controls-panel" id="fretboard-controls">
+        <div class="control-group">
+            <label>Tom:</label>
+            <select id="key-select">
+                <option value="0">Dó (C)</option>
+                <option value="1">Dó# / Réb (C#/Db)</option>
+                <option value="2">Ré (D)</option>
+                <option value="3">Ré# / Mib (D#/Eb)</option>
+                <option value="4">Mi (E)</option>
+                <option value="5">Fá (F)</option>
+                <option value="6">Fá# / Solb (F#/Gb)</option>
+                <option value="7">Sol (G)</option>
+                <option value="8">Sol# / Láb (G#/Ab)</option>
+                <option value="9">Lá (A)</option>
+                <option value="10">Lá# / Sib (A#/Bb)</option>
+                <option value="11">Si (B)</option>
+            </select>
+        </div>
+
+        <div class="control-group" id="group-scale">
+            <label>Escala / Modo:</label>
+            <select id="scale-select">
+                <optgroup label="Campos Principais">
+                    <option value="major">Maior (Jônio)</option>
+                    <option value="natural_minor">Menor Natural (Eólio)</option>
+                    <option value="harmonic_minor">Menor Harmônica</option>
+                    <option value="melodic_minor">Menor Melódica</option>
+                </optgroup>
+                <optgroup label="Modos do Campo Maior">
+                    <option value="dorian">Dórico</option>
+                    <option value="phrygian">Frígio</option>
+                    <option value="lydian">Lídio</option>
+                    <option value="mixolydian">Mixolídio</option>
+                    <option value="locrian">Lócrio</option>
+                </optgroup>
+                <optgroup label="Modos Menor Harmônica">
+                    <option value="locrian_nat6">Lócrio 6</option>
+                    <option value="ionian_sharp5">Jônio #5</option>
+                    <option value="dorian_sharp4">Dórico #4</option>
+                    <option value="phrygian_dom">Mixolídio b9 b13 (Frígio Dominante)</option>
+                    <option value="lydian_sharp2">Lídio #2</option>
+                    <option value="ultralocrian">Ultra-Lócrio</option>
+                </optgroup>
+                <optgroup label="Modos Menor Melódica">
+                    <option value="dorian_b2">Dórico b2 (Frígio 6)</option>
+                    <option value="lydian_aug">Lídio Aumentado (#5)</option>
+                    <option value="lydian_dom">Lídio Dominante (Lídio b7)</option>
+                    <option value="mixolydian_b6">Mixolídio b6</option>
+                    <option value="locrian_sharp2">Lócrio #2</option>
+                    <option value="altered">Super Lócrio / Alterada</option>
+                </optgroup>
+                <optgroup label="Pentatônicas e Outras">
+                    <option value="penta_major">Pentatônica Maior</option>
+                    <option value="penta_minor">Pentatônica Menor</option>
+                    <option value="penta_blues">Pentatônica Blues</option>
+                    <option value="penta_m6">Pentatônica Menor 6</option>
+                    <option value="diminished">Diminuta (Tom/Semitom)</option>
+                    <option value="dom_dim">Dom Dim (Semitom/Tom)</option>
+                    <option value="whole_tone">Hexafônica</option>
+                    <option value="messiaen_m3">Modo M3 Messiaen</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="control-group" id="group-arpeggio" style="display: none;">
+            <label>Tríade / Arpejo:</label>
+            <select id="arpeggio-select">
+                <option value="triad_major">Tríade Maior (1, 3, 5)</option>
+                <option value="triad_minor">Tríade Menor (1, b3, 5)</option>
+                <option value="triad_dim">Tríade Diminuta (1, b3, b5)</option>
+                <option value="triad_aug">Tríade Aumentada (1, 3, #5)</option>
+                <option value="arp_maj7">Arpejo Maior com 7M (1, 3, 5, 7M)</option>
+                <option value="arp_dom7">Arpejo Dominante 7 (1, 3, 5, b7)</option>
+                <option value="arp_m7">Arpejo Menor 7 (1, b3, 5, b7)</option>
+                <option value="arp_m7b5">Arpejo Meio-Diminuto (1, b3, b5, b7)</option>
+                <option value="arp_dim7">Arpejo Diminuto Inteiro (1, b3, b5, bb7)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Modelo (CAGED):</label>
+            <select id="caged-select">
+                <option value="1">Desenho 1 (Modelo C)</option>
+                <option value="2">Desenho 2 (Modelo A)</option>
+                <option value="3">Desenho 3 (Modelo G)</option>
+                <option value="4">Desenho 4 (Modelo E)</option>
+                <option value="5">Desenho 5 (Modelo D)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Instrumento:</label>
+            <select id="instrument-select">
+                <option value="bass5" selected>Contrabaixo 5 Cordas (B E A D G)</option>
+                <option value="bass4">Contrabaixo 4 Cordas (E A D G)</option>
+                <option value="guitar6">Violão 6 Cordas (E B G D A E)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Tempo (BPM): <span id="bpm-display">120</span></label>
+            <div class="bpm-controls">
+                <button class="bpm-btn" id="btn-minus">-</button>
+                <input type="range" id="bpm-slider" min="40" max="300" value="120">
+                <button class="bpm-btn" id="btn-plus">+</button>
+            </div>
+        </div>
+
+        <div class="control-group" style="flex-direction: row; align-items: flex-end; gap: 8px;">
+            <button id="btn-play">PLAY</button>
+            <button id="btn-pause">PAUSE</button>
+            <button id="btn-loop" style="background:#ff9800;">LOOP: OFF</button>
+        </div>
+    </div>
+
+    <!-- Painel Seletor do Campo Harmônico -->
+    <div class="controls-panel" id="ch-controls" style="display: none; justify-content: center;">
+        <div class="control-group">
+            <label>Tipo de Campo Harmônico:</label>
+            <select id="ch-type-select">
+                <option value="major">Maior (Jônio)</option>
+                <option value="natural_minor">Menor Natural (Eólio)</option>
+                <option value="harmonic_minor">Menor Harmônica</option>
+                <option value="melodic_minor">Menor Melódica</option>
+                <option value="diminished">Diminuto (Tom / Semitom)</option>
+                <option value="dom_dim">Dom Dim (Semitom / Tom)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Braço Estilizado de Instrumentos -->
+    <div class="fretboard-container" id="fretboard-wrapper">
+      <div class="fretboard" id="fretboard-root">
+        <!-- Espaço Cordas Soltas -->
+        <div class="open-strings-space" id="open-strings-space"></div>
+        <!-- Pestana -->
+        <div class="nut"></div>
+
+        <!-- 17 Casas -->
+        <div class="fret-space fret-0" style="display:none"></div>
+        <div class="fret-space"></div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">3</span>
+          <div class="inlay inlay-single"></div>
+        </div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">5</span>
+          <div class="inlay inlay-single"></div>
+        </div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">7</span>
+          <div class="inlay inlay-single"></div>
+        </div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">9</span>
+          <div class="inlay inlay-single"></div>
+        </div>
+        <div class="fret-space"></div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">12</span>
+          <div class="inlay inlay-double-top"></div>
+          <div class="inlay inlay-double-bottom"></div>
+        </div>
+        <div class="fret-space"></div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">15</span>
+          <div class="inlay inlay-single"></div>
+        </div>
+        <div class="fret-space"></div>
+        <div class="fret-space">
+          <span class="fret-number">17</span>
+        </div>
+
+        <!-- Linhas das Cordas -->
+        <div class="strings-container" id="strings-lines-container"></div>
+
+        <!-- Grid Virtual de Posicionamento e Interação de Notas -->
+        <div class="fretboard-grid-overlay" id="fretboard-grid-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Tabela do Campo Harmônico e Menu de Modos -->
+    <div class="ch-container" id="ch-wrapper" style="display: none;">
+        <table class="ch-table">
+            <thead>
+                <tr id="ch-table-header"></tr>
+            </thead>
+            <tbody id="ch-table-body"></tbody>
+        </table>
+
+        <div class="modes-info-panel">
+            <h3>Nomes dos Modos por Campo Harmônico</h3>
+            <div class="modes-grid">
+                <div class="mode-card-info">
+                    <h4>Campo Harmônico Maior</h4>
+                    <ul>
+                        <li><strong>I Grau:</strong> Jônio</li>
+                        <li><strong>II Grau:</strong> Dórico</li>
+                        <li><strong>III Grau:</strong> Frígio</li>
+                        <li><strong>IV Grau:</strong> Lídio</li>
+                        <li><strong>V Grau:</strong> Mixolídio</li>
+                        <li><strong>VI Grau:</strong> Eólio</li>
+                        <li><strong>VII Grau:</strong> Lócrio</li>
+                    </ul>
+                </div>
+                <div class="mode-card-info">
+                    <h4>Campo Harmônico Menor Natural</h4>
+                    <ul>
+                        <li><strong>I Grau:</strong> Eólio</li>
+                        <li><strong>II Grau:</strong> Lócrio</li>
+                        <li><strong>III Grau:</strong> Jônio</li>
+                        <li><strong>IV Grau:</strong> Dórico</li>
+                        <li><strong>V Grau:</strong> Frígio</li>
+                        <li><strong>VI Grau:</strong> Lídio</li>
+                        <li><strong>VII Grau:</strong> Mixolídio</li>
+                    </ul>
+                </div>
+                <div class="mode-card-info">
+                    <h4>Campo Harmônico Menor Harmônico</h4>
+                    <ul>
+                        <li><strong>I Grau:</strong> Menor Harmônica</li>
+                        <li><strong>II Grau:</strong> Lócrio 6</li>
+                        <li><strong>III Grau:</strong> Jônio #5</li>
+                        <li><strong>IV Grau:</strong> Dórico #4</li>
+                        <li><strong>V Grau:</strong> Mixolídio b9 b13</li>
+                        <li><strong>VI Grau:</strong> Lídio #2</li>
+                        <li><strong>VII Grau:</strong> Ultra-Lócrio</li>
+                    </ul>
+                </div>
+                <div class="mode-card-info">
+                    <h4>Campo Harmônico Menor Melódico</h4>
+                    <ul>
+                        <li><strong>I Grau:</strong> Menor Melódica</li>
+                        <li><strong>II Grau:</strong> Dórico b2</li>
+                        <li><strong>III Grau:</strong> Lídio Aumentado</li>
+                        <li><strong>IV Grau:</strong> Lídio Dominante</li>
+                        <li><strong>V Grau:</strong> Mixolídio b6</li>
+                        <li><strong>VI Grau:</strong> Lócrio #2</li>
+                        <li><strong>VII Grau:</strong> Super Lócrio / Alterado</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="mode-visualizer-panel">
+            <h3>Visualizar os modos no braço do instrumento</h3>
+            <div class="mode-visualizer-controls">
+                <div class="control-group">
+                    <label>Selecione o Modo:</label>
+                    <select id="quick-mode-select">
+                        <optgroup label="Modos do Campo Maior">
+                            <option value="major">I - Jônio (Maior)</option>
+                            <option value="dorian">II - Dórico</option>
+                            <option value="phrygian">III - Frígio</option>
+                            <option value="lydian">IV - Lídio</option>
+                            <option value="mixolydian">V - Mixolídio</option>
+                            <option value="natural_minor">VI - Eólio (Menor Natural)</option>
+                            <option value="locrian">VII - Lócrio</option>
+                        </optgroup>
+                        <optgroup label="Modos da Menor Harmônica">
+                            <option value="harmonic_minor">I - Menor Harmônica</option>
+                            <option value="locrian_nat6">II - Lócrio 6</option>
+                            <option value="ionian_sharp5">III - Jônio #5</option>
+                            <option value="dorian_sharp4">IV - Dórico #4</option>
+                            <option value="phrygian_dom">V - Mixolídio b9 b13</option>
+                            <option value="lydian_sharp2">VI - Lídio #2</option>
+                            <option value="ultralocrian">VII - Ultra-Lócrio</option>
+                        </optgroup>
+                        <optgroup label="Modos da Menor Melódica">
+                            <option value="melodic_minor">I - Menor Melódica</option>
+                            <option value="dorian_b2">II - Dórico b2</option>
+                            <option value="lydian_aug">III - Lídio Aumentado</option>
+                            <option value="lydian_dom">IV - Lídio Dominante</option>
+                            <option value="mixolydian_b6">V - Mixolídio b6</option>
+                            <option value="locrian_sharp2">VI - Lócrio #2</option>
+                            <option value="altered">VII - Super Lócrio / Alterado</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <button id="btn-view-on-fretboard" style="align-self: flex-end; height: 35px; background: #00e676; color: #000;">Visualizar no Braço</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Janela de Teoria Básica -->
+    <div class="theory-container" id="theory-wrapper" style="display: none;">
+        <div class="theory-section">
+            <h2>Cifras</h2>
+            <p>Cifras são letras maiúsculas usadas para representar as notas musicais e os acordes.</p>
+            <div class="theory-diagram-box">
+                <div class="cipher-columns">
+                    <div class="cipher-col">
+                        <div class="cipher-col-title">Ordem alfabética</div>
+                        <div class="cipher-card alpha">A = LÁ</div>
+                        <div class="cipher-card alpha">B = SI</div>
+                        <div class="cipher-card alpha">C = DÓ</div>
+                        <div class="cipher-card alpha">D = RÉ</div>
+                        <div class="cipher-card alpha">E = MI</div>
+                        <div class="cipher-card alpha">F = FÁ</div>
+                        <div class="cipher-card alpha">G = SOL</div>
+                    </div>
+                    <div class="cipher-col">
+                        <div class="cipher-col-title">Ordem das notas musicais</div>
+                        <div class="cipher-card notes">C = DÓ</div>
+                        <div class="cipher-card notes">D = RÉ</div>
+                        <div class="cipher-card notes">E = MI</div>
+                        <div class="cipher-card notes">F = FÁ</div>
+                        <div class="cipher-card notes">G = SOL</div>
+                        <div class="cipher-card notes">A = LÁ</div>
+                        <div class="cipher-card notes">B = SI</div>
+                    </div>
+                </div>
+            </div>
+            <h3>Exemplo de aplicação de cifras</h3>
+            <div class="theory-diagram-box">
+                <div class="lead-sheet-box">
+                    <div class="lead-sheet-header">
+                        <span>Medium Swing</span>
+                        <span>Autumn Leaves</span>
+                        <span>Joseph Kosma</span>
+                    </div>
+                    <div class="lead-sheet-grid">
+                        <div class="lead-sheet-cell">Cm7</div>
+                        <div class="lead-sheet-cell">F7</div>
+                        <div class="lead-sheet-cell">BbM7</div>
+                        <div class="lead-sheet-cell">EbM7</div>
+                        <div class="lead-sheet-cell">Aø7</div>
+                        <div class="lead-sheet-cell">D7</div>
+                        <div class="lead-sheet-cell">Gm13</div>
+                        <div class="lead-sheet-cell">Cm6</div>
+                        <div class="lead-sheet-cell">%</div>
+                        <div class="lead-sheet-cell">D7</div>
+                        <div class="lead-sheet-cell">Gm13</div>
+                        <div class="lead-sheet-cell">Cm6</div>
+                        <div class="lead-sheet-cell">%</div>
+                        <div class="lead-sheet-cell">F7</div>
+                        <div class="lead-sheet-cell">BbM7</div>
+                        <div class="lead-sheet-cell">EbM7</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Relógio do Ciclo de Quintas e Quartas com suas Relativas Primárias</h2>
+            <p>O ciclo de quartas e quintas é uma sequência de acordes ou notas que progridem em intervalos de quartas ou quintas.</p>
+        </div>
+
+        <div class="theory-section">
+            <h2>Armadura de Clave</h2>
+            <p>A armadura de clave é um conjunto de sinais de sustenidos, bemóis ou ausência de acidentes colocado no início de uma pauta.</p>
+        </div>
+
+        <div class="theory-section">
+            <h2>Exercícios Psicomotores</h2>
+            <p><strong>Tocar todos os exercícios com metrônomo a partir de 60 bpm.</strong></p>
+            <h3>Os números representam os dedos da mão esquerda</h3>
+            <div style="display: flex; justify-content: center;">
+                <table class="pm-table">
+                    <tbody>
+                        <tr><td>1 2 3 4</td><td>2 1 3 4</td><td>3 1 2 4</td><td>4 1 2 3</td></tr>
+                        <tr><td>1 2 4 3</td><td>2 1 4 3</td><td>3 1 4 2</td><td>4 1 3 2</td></tr>
+                        <tr><td>1 3 4 2</td><td>2 3 1 4</td><td>3 2 4 1</td><td>4 2 3 1</td></tr>
+                        <tr><td>1 3 2 4</td><td>2 3 4 1</td><td>3 2 1 4</td><td>4 2 1 3</td></tr>
+                        <tr><td>1 4 3 2</td><td>2 4 1 3</td><td>3 4 1 2</td><td>4 3 1 2</td></tr>
+                        <tr><td>1 4 2 3</td><td>2 4 3 1</td><td>3 4 2 1</td><td>4 3 2 1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção Integrada PoliMetrônomo Pro -->
+    <div class="app" style="max-width: 1450px; margin-top: 30px; background: var(--panel-bg); border-radius: 8px; padding: 20px; border: 1px solid #444;">
+      <header class="top" style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;">
+        <div class="brand" style="display:flex; align-items:center; gap:12px;">
+            <div class="logo" aria-hidden="true" style="width:42px;height:42px;border:1px solid #2c4961;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#102839,#0b111b);position:relative;"></div>
+            <div><h1 style="font-size:18px; margin:0;">PoliMetrônomo Pro</h1><p style="margin:2px 0 0;color:#8d9aaa;font-size:12px;">estudo de polirritmia</p></div>
+        </div>
+        <div class="badge" style="border:1px solid #315a61;background:#102622;color:#95f7df;border-radius:999px;padding:8px 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;">TUP LAB · prática consciente</div>
+      </header>
+      <section class="toolbar" aria-label="controles principais" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:#0e141f; border:1px solid #293244; border-radius:15px; padding:11px;">
+        <button class="toolbtn active" id="soundBtn" style="border:1px solid #293244;background:#141b27;border-radius:999px;padding:10px 12px;color:#071117;background:#20d7ee;">Som: ON</button>
+        <button class="toolbtn" id="accentBtn" style="border:1px solid #293244;background:#141b27;border-radius:999px;padding:10px 12px;color:#b9c5d1;">Acento: 1</button>
+        <button class="toolbtn" id="visualBtn" style="border:1px solid #293244;background:#141b27;border-radius:999px;padding:10px 12px;color:#b9c5d1;">Visual: ON</button>
+        <div class="tempo" style="margin-left:auto;display:flex;align-items:center;gap:8px;"><button id="pm-minus" aria-label="diminuir BPM" style="width:34px;height:34px;border-radius:50%;padding:0;font-size:21px;border:1px solid #293244;background:#171f2d;color:#fff;">−</button><div class="bpm" style="min-width:85px;text-align:center;"><strong id="pm-bpmValue" style="display:block;font-size:30px;font-weight:400;line-height:1;">74</strong><small style="color:#8d9aaa;font-size:10px;letter-spacing:.12em;">BPM · pulso</small></div><button id="pm-plus" aria-label="aumentar BPM" style="width:34px;height:34px;border-radius:50%;padding:0;font-size:21px;border:1px solid #293244;background:#171f2d;color:#fff;">+</button></div>
+      </section>
+      <main class="main" style="display:grid;grid-template-columns:minmax(310px,1.25fr) minmax(300px,1fr);gap:14px;margin-top:14px;">
+        <section class="card" style="background:linear-gradient(145deg,#121a27e8,#0c121ce8);border:1px solid #293244;border-radius:18px;overflow:hidden;">
+          <div class="cardhead" style="display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid #222c3a;"><h2 style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0;">Mapa de fase</h2><span id="cycleText" style="color:#8d9aaa;font-size:12px;">ciclo 0 / 1</span></div>
+          <div class="visual" style="min-height:360px;display:grid;place-items:center;padding:15px;position:relative;"><div class="stage" style="width:min(100%,360px);aspect-ratio:1;position:relative;"><canvas id="orbit" width="600" height="600" style="width:100%;height:100%;display:block;"></canvas><div class="center" style="position:absolute;inset:40%;border-radius:50%;border:1px solid #406476;background:#101823;display:grid;place-items:center;text-align:center;box-shadow:0 0 30px #11cfe022;"><div style="color:#fff;"><b id="beatText" style="font-size:18px;font-weight:500;">—</b><small style="display:block;color:#8d9aaa;font-size:9px;text-transform:uppercase;letter-spacing:.12em;margin-top:2px;">pulso</small></div></div></div><div class="legend" style="display:flex;gap:18px;justify-content:center;color:#8d9aaa;font-size:11px;margin-top:5px;"><span><i class="dot cyan" style="width:8px;height:8px;display:inline-block;border-radius:50%;margin-right:5px;background:#20d7ee;box-shadow:0 0 9px #20d7ee;"></i>voz A</span><span><i class="dot mint" style="width:8px;height:8px;display:inline-block;border-radius:50%;margin-right:5px;background:#73e0bd;box-shadow:0 0 9px #73e0bd;"></i>voz B</span></div></div>
+        </section>
+        <section class="card" style="background:linear-gradient(145deg,#121a27e8,#0c121ce8);border:1px solid #293244;border-radius:18px;overflow:hidden;">
+          <div class="cardhead" style="display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid #222c3a;"><h2 style="font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0;">Polirritmo</h2><span style="color:#8d9aaa;font-size:12px;">duas vozes</span></div>
+          <div class="controls" style="padding:14px 16px 17px;">
+            <div class="ratio-row" style="display:grid;grid-template-columns:1fr 34px 1fr;gap:9px;align-items:center;">
+              <div class="voice a" style="border:1px solid #125870;border-radius:13px;padding:12px;background:#0d141f;"><label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#b9c5d1;margin-bottom:9px;"><span class="tag a" style="color:#20d7ee;background:#07303d;padding:4px 7px;border-radius:6px;font-size:10px;">voz A · ciano</span><span id="aName">3 notas</span></label><select id="ratioA" style="width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:24px;font-weight:600;"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select></div>
+              <div class="colon" style="font-size:23px;color:#647183;text-align:center;">:</div>
+              <div class="voice b" style="border:1px solid #1d655e;border-radius:13px;padding:12px;background:#0d141f;"><label style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#b9c5d1;margin-bottom:9px;"><span class="tag b" style="color:#73e0bd;background:#103e3a;padding:4px 7px;border-radius:6px;font-size:10px;">voz B · menta</span><span id="bName">4 notas</span></label><select id="ratioB" style="width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:24px;font-weight:600;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select></div>
+            </div>
+            <div class="flow" style="margin:15px 0 7px;padding:0 2px;"><div class="flowhead" style="display:flex;justify-content:space-between;align-items:center;color:#8d9aaa;font-size:11px;margin-bottom:8px;"><span>andamento</span><b style="color:#fff;font-size:12px;"><span id="speedLabel">74</span> BPM</b></div><input class="range" id="pm-tempoRange" type="range" min="30" max="220" value="74" style="width:100%;accent-color:#20d7ee;height:5px;"></div>
+            <div class="settings" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;">
+              <div class="setting" style="border:1px solid #293244;border-radius:10px;padding:9px 10px;background:#0d141f;"><label style="display:flex;justify-content:space-between;color:#8d9aaa;font-size:11px;margin-bottom:6px;">som A <span id="volAValue">70%</span></label><input class="range" id="volA" type="range" min="0" max="100" value="70" style="width:100%;accent-color:#20d7ee;"></div>
+              <div class="setting" style="border:1px solid #293244;border-radius:10px;padding:9px 10px;background:#0d141f;"><label style="display:flex;justify-content:space-between;color:#8d9aaa;font-size:11px;margin-bottom:6px;">som B <span id="volBValue">65%</span></label><input class="range" id="volB" type="range" min="0" max="100" value="65" style="width:100%;accent-color:#20d7ee;"></div>
+              <div class="setting" style="border:1px solid #293244;border-radius:10px;padding:9px 10px;background:#0d141f;"><label style="display:flex;justify-content:space-between;color:#8d9aaa;font-size:11px;margin-bottom:6px;">timbre A</label><select id="soundA" style="border:0;padding:0;width:100%;background:transparent;color:#fff;outline:0;"><option value="wood" selected>wood · seco</option><option value="click">click · agudo</option><option value="clave">clave · médio</option></select></div>
+              <div class="setting" style="border:1px solid #293244;border-radius:10px;padding:9px 10px;background:#0d141f;"><label style="display:flex;justify-content:space-between;color:#8d9aaa;font-size:11px;margin-bottom:6px;">timbre B</label><select id="soundB" style="border:0;padding:0;width:100%;background:transparent;color:#fff;outline:0;"><option value="kick" selected>kick · grave</option><option value="wood">wood · seco</option><option value="click">click · agudo</option></select></div>
+            </div>
+            <div class="transport" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;"><button class="start" id="pm-start" style="border-radius:11px;padding:13px;border:1px solid #f7f8fb;background:#f7f8fb;color:#09101a;font-weight:700;"><span class="pulse" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#536477;margin-right:7px;"></span><span id="startText">INICIAR</span></button><button class="tap" id="tap" style="border-radius:11px;padding:13px;border:1px solid #293244;background:#17202e;color:#a4b5c4;">TAP TEMPO</button></div>
+            <div class="presets" style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;"><button class="preset" data-a="2" data-b="3" data-bpm="60" style="padding:7px 10px;border-radius:8px;border:1px solid #293244;background:#101824;color:#aab6c4;font-size:11px;">2 : 3 · base</button><button class="preset" data-a="3" data-b="4" data-bpm="74" style="padding:7px 10px;border-radius:8px;border:1px solid #293244;background:#101824;color:#aab6c4;font-size:11px;">3 : 4 · clássico</button><button class="preset" data-a="4" data-b="5" data-bpm="60" style="padding:7px 10px;border-radius:8px;border:1px solid #293244;background:#101824;color:#aab6c4;font-size:11px;">4 : 5 · avançado</button><button class="preset" data-a="5" data-b="7" data-bpm="50" style="padding:7px 10px;border-radius:8px;border:1px solid #293244;background:#101824;color:#aab6c4;font-size:11px;">5 : 7 · desafio</button></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+        // Mapeamento e Estruturas Teóricas
+        const NOTES = ["C", "C#\nDb", "D", "D#\nEb", "E", "F", "F#\nGb", "G", "G#\nAb", "A", "A#\nBb", "B"];
+        const ROOT_NAMES = [["C"], ["C#", "Db"], ["D"], ["D#", "Eb"], ["E"], ["F"], ["F#", "Gb"], ["G"], ["G#", "Ab"], ["A"], ["A#", "Bb"], ["B"]];
+
+        function getNoteName(index, preferFlat = false) {
+            const opts = ROOT_NAMES[index % 12];
+            if (opts.length === 1) return opts[0];
+            return preferFlat ? opts[1] : opts[0];
+        }
+        
+        const SCALE_INTERVALS = {
+            major: [0, 2, 4, 5, 7, 9, 11],
+            dorian: [0, 2, 3, 5, 7, 9, 10],
+            phrygian: [0, 1, 3, 5, 7, 8, 10],
+            lydian: [0, 2, 4, 6, 7, 9, 11],
+            mixolydian: [0, 2, 4, 5, 7, 9, 10],
+            natural_minor: [0, 2, 3, 5, 7, 8, 10],
+            locrian: [0, 1, 3, 5, 6, 8, 10],
+            harmonic_minor: [0, 2, 3, 5, 7, 8, 11],
+            locrian_nat6: [0, 1, 3, 5, 6, 9, 10],
+            ionian_sharp5: [0, 2, 4, 5, 8, 9, 11],
+            dorian_sharp4: [0, 2, 3, 6, 7, 9, 10],
+            phrygian_dom: [0, 1, 4, 5, 7, 8, 10],
+            lydian_sharp2: [0, 3, 4, 6, 7, 9, 11],
+            ultralocrian: [0, 1, 3, 4, 6, 8, 9],
+            melodic_minor: [0, 2, 3, 5, 7, 9, 11],
+            dorian_b2: [0, 1, 3, 5, 7, 9, 10],
+            lydian_aug: [0, 2, 4, 6, 8, 9, 11],
+            lydian_dom: [0, 2, 4, 6, 7, 9, 10],
+            mixolydian_b6: [0, 2, 4, 5, 7, 8, 10],
+            locrian_sharp2: [0, 2, 3, 5, 6, 8, 10],
+            altered: [0, 1, 3, 4, 6, 8, 10],
+            penta_major: [0, 2, 4, 7, 9],
+            penta_minor: [0, 3, 5, 7, 10],
+            penta_blues: [0, 3, 5, 6, 7, 10],
+            penta_m6: [0, 3, 5, 7, 9],
+            diminished: [0, 2, 3, 5, 6, 8, 9, 11],
+            dom_dim: [0, 1, 3, 4, 6, 7, 9, 10],
+            whole_tone: [0, 2, 4, 6, 8, 10],
+            messiaen_m3: [0, 2, 3, 4, 6, 7, 8, 10, 11]
+        };
+
+        const ARPEGGIO_INTERVALS = {
+            triad_major: [0, 4, 7],
+            triad_minor: [0, 3, 7],
+            triad_dim: [0, 3, 6],
+            triad_aug: [0, 4, 8],
+            arp_maj7: [0, 4, 7, 11],
+            arp_dom7: [0, 4, 7, 10],
+            arp_m7: [0, 3, 7, 10],
+            arp_m7b5: [0, 3, 6, 10],
+            arp_dim7: [0, 3, 6, 9]
+        };
+
+        const HARMONIC_FIELDS = {
+            major: [
+                { degree: "I", suffix: "7M", mode: "Jônio", isPrimary: true, semitones: 0 },
+                { degree: "II", suffix: "m7", mode: "Dórico", isPrimary: false, semitones: 2 },
+                { degree: "III", suffix: "m7", mode: "Frígio", isPrimary: false, semitones: 4 },
+                { degree: "IV", suffix: "7M", mode: "Lídio", isPrimary: true, semitones: 5 },
+                { degree: "V", suffix: "7", mode: "Mixolídio", isPrimary: true, semitones: 7 },
+                { degree: "VI", suffix: "m7", mode: "Eólio", isPrimary: false, semitones: 9 },
+                { degree: "VII", suffix: "m7(b5)", mode: "Lócrio", isPrimary: false, semitones: 11 }
+            ],
+            natural_minor: [
+                { degree: "I", suffix: "m7", mode: "Eólio", isPrimary: true, semitones: 0 },
+                { degree: "II", suffix: "m7(b5)", mode: "Lócrio", isPrimary: false, semitones: 2 },
+                { degree: "III", suffix: "7M", mode: "Jônio", isPrimary: false, semitones: 3 },
+                { degree: "IV", suffix: "m7", mode: "Dórico", isPrimary: true, semitones: 5 },
+                { degree: "V", suffix: "m7", mode: "Frígio", isPrimary: true, semitones: 7 },
+                { degree: "VI", suffix: "7M", mode: "Lídio", isPrimary: false, semitones: 8 },
+                { degree: "VII", suffix: "7", mode: "Mixolídio", isPrimary: false, semitones: 10 }
+            ],
+            harmonic_minor: [
+                { degree: "I", suffix: "m(7M)", mode: "Menor Harmônica", isPrimary: true, semitones: 0 },
+                { degree: "II", suffix: "m7(b5)", mode: "Lócrio 6", isPrimary: false, semitones: 2 },
+                { degree: "III", suffix: "7M(#5)", mode: "Jônio #5", isPrimary: false, semitones: 3 },
+                { degree: "IV", suffix: "m7", mode: "Dórico #4", isPrimary: true, semitones: 5 },
+                { degree: "V", suffix: "7", mode: "Mixolídio b9 b13", isPrimary: true, semitones: 7 },
+                { degree: "VI", suffix: "7M", mode: "Lídio #2", isPrimary: false, semitones: 8 },
+                { degree: "VII", suffix: "dim7", mode: "Ultra-Lócrio", isPrimary: false, semitones: 11 }
+            ],
+            melodic_minor: [
+                { degree: "I", suffix: "m(7M)", mode: "Menor Melódica", isPrimary: true, semitones: 0 },
+                { degree: "II", suffix: "m7", mode: "Dórico b2", isPrimary: false, semitones: 2 },
+                { degree: "III", suffix: "7M(#5)", mode: "Lídio Aumentado", isPrimary: false, semitones: 3 },
+                { degree: "IV", suffix: "7", mode: "Lídio Dominante", isPrimary: true, semitones: 5 },
+                { degree: "V", suffix: "7", mode: "Mixolídio b6", isPrimary: true, semitones: 7 },
+                { degree: "VI", suffix: "m7(b5)", mode: "Lócrio #2", isPrimary: false, semitones: 9 },
+                { degree: "VII", suffix: "m7(b5)", mode: "Super Lócrio / Alterado", isPrimary: false, semitones: 11 }
+            ],
+            diminished: [
+                { degree: "I", suffix: "dim7", mode: "Diminuto", isPrimary: true, semitones: 0 },
+                { degree: "II", suffix: "7", mode: "Dom Dim", isPrimary: false, semitones: 2 },
+                { degree: "III", suffix: "dim7", mode: "Diminuto", isPrimary: false, semitones: 3 },
+                { degree: "IV", suffix: "7", mode: "Dom Dim", isPrimary: true, semitones: 5 },
+                { degree: "V", suffix: "dim7", mode: "Diminuto", isPrimary: true, semitones: 6 },
+                { degree: "VI", suffix: "7", mode: "Dom Dim", isPrimary: false, semitones: 8 },
+                { degree: "VII", suffix: "dim7", mode: "Diminuto", isPrimary: false, semitones: 9 },
+                { degree: "VIII", suffix: "7", mode: "Dom Dim", isPrimary: false, semitones: 11 }
+            ],
+            dom_dim: [
+                { degree: "I", suffix: "7", mode: "Dom Dim", isPrimary: true, semitones: 0 },
+                { degree: "II", suffix: "dim7", mode: "Diminuto", isPrimary: false, semitones: 1 },
+                { degree: "III", suffix: "7", mode: "Dom Dim", isPrimary: false, semitones: 3 },
+                { degree: "IV", suffix: "dim7", mode: "Diminuto", isPrimary: true, semitones: 4 },
+                { degree: "V", suffix: "7", mode: "Dom Dim", isPrimary: true, semitones: 6 },
+                { degree: "VI", suffix: "dim7", mode: "Diminuto", isPrimary: false, semitones: 7 },
+                { degree: "VII", suffix: "7", mode: "Dom Dim", isPrimary: false, semitones: 9 },
+                { degree: "VIII", suffix: "dim7", mode: "Diminuto", isPrimary: false, semitones: 10 }
+            ]
+        };
+
+        const BASS_4_STRINGS = [
+            { name: "G", rootNoteIndex: 7, octave: 2 },
+            { name: "D", rootNoteIndex: 2, octave: 2 },
+            { name: "A", rootNoteIndex: 9, octave: 1 },
+            { name: "E", rootNoteIndex: 4, octave: 1 }
+        ];
+
+        const BASS_5_STRINGS = [
+            { name: "G", rootNoteIndex: 7, octave: 2 },
+            { name: "D", rootNoteIndex: 2, octave: 2 },
+            { name: "A", rootNoteIndex: 9, octave: 1 },
+            { name: "E", rootNoteIndex: 4, octave: 1 },
+            { name: "B", rootNoteIndex: 11, octave: 0 }
+        ];
+
+        const GUITAR_6_STRINGS = [
+            { name: "E", rootNoteIndex: 4, octave: 4 },
+            { name: "B", rootNoteIndex: 11, octave: 3 },
+            { name: "G", rootNoteIndex: 7, octave: 3 },
+            { name: "D", rootNoteIndex: 2, octave: 3 },
+            { name: "A", rootNoteIndex: 9, octave: 2 },
+            { name: "E", rootNoteIndex: 4, octave: 2 }
+        ];
+
+        // Regiões dos cinco desenhos CAGED. Os deslocamentos são relativos
+        // à nota fundamental do desenho, e não casas fixas: assim o mapa
+        // acompanha corretamente qualquer tom escolhido.
+        const CAGED_SHAPES = [
+            { anchor: "A", offset: -3, endOffset: 1 }, // 1 - C
+            { anchor: "A", offset: -1, endOffset: 3 }, // 2 - A
+            { anchor: "G", offset: -1, endOffset: 3 }, // 3 - G
+            { anchor: "E", offset: -1, endOffset: 2 }, // 4 - E
+            { anchor: "D", offset: -1, endOffset: 3 }  // 5 - D
+        ];
+
+        function getInstrumentStrings() {
+            if (currentInstrument === "bass4") return BASS_4_STRINGS;
+            if (currentInstrument === "guitar6") return GUITAR_6_STRINGS;
+            return BASS_5_STRINGS;
+        }
+
+        function getAnchorStringIndex(strings, anchor) {
+            // No violão existem duas cordas E; para o modelo E usamos a
+            // mais grave, como no diagrama de referência.
+            if (anchor === "E") {
+                for (let i = strings.length - 1; i >= 0; i--) {
+                    if (strings[i].name === "E") return i;
+                }
+            }
+            return strings.findIndex(str => str.name === anchor);
+        }
+
+        function getCagedRange(model, rootIndex) {
+            const shape = CAGED_SHAPES[model - 1] || CAGED_SHAPES[0];
+            const strings = getInstrumentStrings();
+            const stringIndex = getAnchorStringIndex(strings, shape.anchor);
+            if (stringIndex < 0) return { min: 0, max: 17 };
+
+            const openNote = strings[stringIndex].rootNoteIndex;
+            let rootFret = (rootIndex - openNote + 12) % 12;
+
+            // G, E e D são apresentados normalmente na região superior do
+            // braço quando a fundamental está na casa 0–4.
+            if (["G", "E", "D"].includes(shape.anchor) && rootFret < 5) {
+                rootFret += 12;
+            }
+
+            let min = rootFret + shape.offset;
+            let max = rootFret + shape.endOffset;
+            if (min < 0) { max -= min; min = 0; }
+            if (max > 17) { min -= max - 17; max = 17; }
+            return { min: Math.max(0, min), max: Math.min(17, max) };
+        }
+
+        let activeTab = "scales";
+        let currentInstrument = "bass5";
+        let isPlaying = false;
+        let isLoop = false;
+        let bpm = 120;
+        let audioCtx = null;
+        let playTimeout = null;
+
+        // Elementos DOM
+        const fretboardGridOverlay = document.getElementById("fretboard-grid-overlay");
+        const stringsLinesContainer = document.getElementById("strings-lines-container");
+        const fretboardRoot = document.getElementById("fretboard-root");
+
+        const bpmSlider = document.getElementById("bpm-slider");
+        const bpmDisplay = document.getElementById("bpm-display");
+        const btnPlus = document.getElementById("btn-plus");
+        const btnMinus = document.getElementById("btn-minus");
+        const btnPlay = document.getElementById("btn-play");
+        const btnPause = document.getElementById("btn-pause");
+        const btnLoop = document.getElementById("btn-loop");
+        const instrumentSelect = document.getElementById("instrument-select");
+
+        const tabScales = document.getElementById("tab-scales");
+        const tabArpeggios = document.getElementById("tab-arpeggios");
+        const tabCh = document.getElementById("tab-ch");
+        const tabTheory = document.getElementById("tab-theory");
+
+        const groupScale = document.getElementById("group-scale");
+        const groupArpeggio = document.getElementById("group-arpeggio");
+        const scaleSelect = document.getElementById("scale-select");
+        const fretboardControls = document.getElementById("fretboard-controls");
+        const fretboardWrapper = document.getElementById("fretboard-wrapper");
+
+        const chControls = document.getElementById("ch-controls");
+        const chWrapper = document.getElementById("ch-wrapper");
+        const chTypeSelect = document.getElementById("ch-type-select");
+        const chTableHeader = document.getElementById("ch-table-header");
+        const chTableBody = document.getElementById("ch-table-body");
+        const theoryWrapper = document.getElementById("theory-wrapper");
+
+        const quickModeSelect = document.getElementById("quick-mode-select");
+        const btnViewOnFretboard = document.getElementById("btn-view-on-fretboard");
+
+        function switchToScaleMode(modeKey) {
+            activeTab = "scales";
+            tabScales.classList.add("active");
+            tabArpeggios.classList.remove("active");
+            tabCh.classList.remove("active");
+            tabTheory.classList.remove("active");
+
+            fretboardControls.style.display = "flex";
+            fretboardWrapper.style.display = "flex";
+            chControls.style.display = "none";
+            chWrapper.style.display = "none";
+            theoryWrapper.style.display = "none";
+
+            groupScale.style.display = "flex";
+            groupArpeggio.style.display = "none";
+
+            scaleSelect.value = modeKey;
+            renderScale();
+        }
+
+        btnViewOnFretboard.addEventListener("click", () => {
+            switchToScaleMode(quickModeSelect.value);
+        });
+
+        tabScales.addEventListener("click", () => {
+            activeTab = "scales";
+            tabScales.classList.add("active");
+            tabArpeggios.classList.remove("active");
+            tabCh.classList.remove("active");
+            tabTheory.classList.remove("active");
+            fretboardControls.style.display = "flex";
+            fretboardWrapper.style.display = "flex";
+            chControls.style.display = "none";
+            chWrapper.style.display = "none";
+            theoryWrapper.style.display = "none";
+            groupScale.style.display = "flex";
+            groupArpeggio.style.display = "none";
+            renderScale();
+        });
+
+        tabArpeggios.addEventListener("click", () => {
+            activeTab = "arpeggios";
+            tabArpeggios.classList.add("active");
+            tabScales.classList.remove("active");
+            tabCh.classList.remove("active");
+            tabTheory.classList.remove("active");
+            fretboardControls.style.display = "flex";
+            fretboardWrapper.style.display = "flex";
+            chControls.style.display = "none";
+            chWrapper.style.display = "none";
+            theoryWrapper.style.display = "none";
+            groupScale.style.display = "none";
+            groupArpeggio.style.display = "flex";
+            renderScale();
+        });
+
+        tabCh.addEventListener("click", () => {
+            activeTab = "ch";
+            tabCh.classList.add("active");
+            tabScales.classList.remove("active");
+            tabArpeggios.classList.remove("active");
+            tabTheory.classList.remove("active");
+            fretboardControls.style.display = "none";
+            fretboardWrapper.style.display = "none";
+            chControls.style.display = "flex";
+            chWrapper.style.display = "block";
+            theoryWrapper.style.display = "none";
+            renderHarmonicFieldTable();
+        });
+
+        tabTheory.addEventListener("click", () => {
+            activeTab = "theory";
+            tabTheory.classList.add("active");
+            tabScales.classList.remove("active");
+            tabArpeggios.classList.remove("active");
+            tabCh.classList.remove("active");
+            fretboardControls.style.display = "none";
+            fretboardWrapper.style.display = "none";
+            chControls.style.display = "none";
+            chWrapper.style.display = "none";
+            theoryWrapper.style.display = "block";
+        });
+
+        function renderHarmonicFieldTable() {
+            const fieldType = chTypeSelect.value;
+            const degreesData = HARMONIC_FIELDS[fieldType];
+            chTableHeader.innerHTML = "<th>Tom</th>";
+            degreesData.forEach(deg => {
+                const th = document.createElement("th");
+                th.innerText = deg.degree;
+                chTableHeader.appendChild(th);
+            });
+
+            chTableBody.innerHTML = "";
+            for (let rootIdx = 0; rootIdx < 12; rootIdx++) {
+                const tr = document.createElement("tr");
+                const tonalityName = getNoteName(rootIdx);
+                const tdTonality = document.createElement("td");
+                tdTonality.style.fontWeight = "bold";
+                tdTonality.style.color = "#29b6f6";
+                tdTonality.innerText = tonalityName;
+                tr.appendChild(tdTonality);
+
+                degreesData.forEach(deg => {
+                    const td = document.createElement("td");
+                    const chordNoteIdx = (rootIdx + deg.semitones) % 12;
+                    const chordNoteName = getNoteName(chordNoteIdx, tonalityName.includes("b"));
+                    const card = document.createElement("div");
+                    card.className = `ch-card ${deg.isPrimary ? "primary" : "secondary"}`;
+                    card.innerHTML = `<span class="ch-degree">${deg.degree}</span><span class="ch-chord">${chordNoteName}${deg.suffix}</span><span class="ch-mode">${deg.mode}</span>`;
+                    td.appendChild(card);
+                    tr.appendChild(td);
+                });
+                chTableBody.appendChild(tr);
+            }
+        }
+
+        chTypeSelect.addEventListener("change", renderHarmonicFieldTable);
+
+        function buildFretboard() {
+            fretboardGridOverlay.innerHTML = "";
+            stringsLinesContainer.innerHTML = "";
+
+            let strings = BASS_5_STRINGS;
+            if (currentInstrument === "bass4") {
+                strings = BASS_4_STRINGS;
+                fretboardRoot.classList.remove("guitar-board");
+            } else if (currentInstrument === "bass5") {
+                strings = BASS_5_STRINGS;
+                fretboardRoot.classList.remove("guitar-board");
+            } else if (currentInstrument === "guitar6") {
+                strings = GUITAR_6_STRINGS;
+                fretboardRoot.classList.add("guitar-board");
+            }
+
+            strings.forEach((str, strIdx) => {
+                const line = document.createElement("div");
+                let gaugeClass = "string-bass-3";
+                if (currentInstrument === "bass4") {
+                    gaugeClass = `string-bass-${strIdx + 1}`;
+                } else if (currentInstrument === "bass5") {
+                    gaugeClass = `string-bass-${strIdx + 1}`;
+                } else if (currentInstrument === "guitar6") {
+                    gaugeClass = `string-guit-${strIdx + 1}`;
+                }
+                line.className = `string-line ${gaugeClass}`;
+                stringsLinesContainer.appendChild(line);
+            });
+
+            strings.forEach((str, strIdx) => {
+                const rowEl = document.createElement("div");
+                rowEl.className = "virtual-string-row";
+
+                const openCell = document.createElement("div");
+                openCell.className = "virtual-cell open-space";
+                const openNoteIndex = str.rootNoteIndex;
+                const openNoteEl = document.createElement("div");
+                openNoteEl.className = "note";
+                openNoteEl.dataset.string = strIdx;
+                openNoteEl.dataset.fret = 0;
+                openNoteEl.dataset.noteIndex = openNoteIndex;
+                openNoteEl.innerText = NOTES[openNoteIndex];
+                openCell.appendChild(openNoteEl);
+                rowEl.appendChild(openCell);
+
+                const nutCell = document.createElement("div");
+                nutCell.className = "virtual-cell nut-space";
+                rowEl.appendChild(nutCell);
+
+                for (let f = 1; f <= 17; f++) {
+                    const fretCell = document.createElement("div");
+                    fretCell.className = "virtual-cell fret-cell";
+                    const noteIndex = (str.rootNoteIndex + f) % 12;
+
+                    const noteEl = document.createElement("div");
+                    noteEl.className = "note";
+                    noteEl.dataset.string = strIdx;
+                    noteEl.dataset.fret = f;
+                    noteEl.dataset.noteIndex = noteIndex;
+                    noteEl.innerText = NOTES[noteIndex];
+
+                    fretCell.appendChild(noteEl);
+                    rowEl.appendChild(fretCell);
+                }
+
+                fretboardGridOverlay.appendChild(rowEl);
+            });
+
+            renderScale();
+        }
+
+        function renderScale() {
+            if (activeTab === "ch" || activeTab === "theory") return;
+
+            document.querySelectorAll(".note").forEach(n => {
+                n.classList.remove("visible", "root", "playing");
+            });
+
+            const rootIndex = parseInt(document.getElementById("key-select").value);
+            const cagedModel = parseInt(document.getElementById("caged-select").value);
+
+            let intervals = [];
+            if (activeTab === "scales") {
+                intervals = SCALE_INTERVALS[scaleSelect.value] || SCALE_INTERVALS.major;
+            } else {
+                intervals = ARPEGGIO_INTERVALS[document.getElementById("arpeggio-select").value];
+            }
+
+            const targetNoteIndices = intervals.map(i => (rootIndex + i) % 12);
+
+            const cagedRange = getCagedRange(cagedModel, rootIndex);
+            const minFret = cagedRange.min;
+            const maxFret = cagedRange.max;
+
+            document.querySelectorAll(".note").forEach(noteEl => {
+                const fret = Number(noteEl.dataset.fret);
+                const noteIdx = Number(noteEl.dataset.noteIndex);
+
+                // O filtro de região reproduz o desenho CAGED selecionado.
+                // Exemplo do diagrama enviado: em Ré, o modelo G fica
+                // entre as casas 6–10 e o modelo E entre 9–12.
+                if (!(currentInstrument === "guitar6" && cagedModel === 1 && noteEl.dataset.string === "2" && fret === 4) && fret >= minFret && fret <= maxFret && targetNoteIndices.includes(noteIdx)) {
+                    noteEl.classList.add("visible");
+                    if (noteIdx === rootIndex) noteEl.classList.add("root");
+                }
+            });
+        }
+
+        async function initAudioContextWithSamples() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+        }
+
+        async function playSampleTone(freq) {
+            await initAudioContextWithSamples();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            if (currentInstrument === "guitar6") {
+                osc.type = "sawtooth";
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+            } else {
+                osc.type = "sawtooth";
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+            }
+
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + (currentInstrument === "guitar6" ? 0.8 : 0.7));
+        }
+
+        function getFrequency(stringIdx, fret) {
+            let strings = BASS_5_STRINGS;
+            if (currentInstrument === "bass4") strings = BASS_4_STRINGS;
+            if (currentInstrument === "guitar6") strings = GUITAR_6_STRINGS;
+
+            const baseObj = strings[stringIdx];
+            const totalSemitones = baseObj.rootNoteIndex + fret + (baseObj.octave * 12);
+            return 440 * Math.pow(2, (totalSemitones - 57) / 12);
+        }
+
+        function playScaleSequence() {
+            if (!isPlaying) return;
+
+            const visibleNotes = Array.from(document.querySelectorAll(".note.visible"));
+            if (visibleNotes.length === 0) {
+                isPlaying = false;
+                return;
+            }
+
+            const uniqueMap = new Map();
+            visibleNotes.forEach(n => {
+                const key = `${n.dataset.string}-${n.dataset.fret}`;
+                if (!uniqueMap.has(key)) {
+                    uniqueMap.set(key, n);
+                }
+            });
+
+            const filteredNotes = Array.from(uniqueMap.values());
+            filteredNotes.sort((a, b) => {
+                if (a.dataset.string !== b.dataset.string) {
+                    return b.dataset.string - a.dataset.string;
+                }
+                return a.dataset.fret - b.dataset.fret;
+            });
+
+            const sequence = [...filteredNotes, ...[...filteredNotes].reverse().slice(1)];
+            let step = 0;
+            const intervalTime = () => (60 / Number(bpm)) * 1000;
+
+            function nextStep() {
+                if (!isPlaying) return;
+
+                document.querySelectorAll(".note").forEach(n => n.classList.remove("playing"));
+
+                if (step < sequence.length) {
+                    const currentNoteEl = sequence[step];
+                    currentNoteEl.classList.add("playing");
+
+                    const stringIdx = parseInt(currentNoteEl.dataset.string);
+                    const fret = parseInt(currentNoteEl.dataset.fret);
+                    const freq = getFrequency(stringIdx, fret);
+                    
+                    playSampleTone(freq);
+
+                    step++;
+                    playTimeout = setTimeout(nextStep, intervalTime());
+                } else {
+                    if (isLoop) {
+                        step = 0;
+                        playTimeout = setTimeout(nextStep, intervalTime());
+                    } else {
+                        isPlaying = false;
+                    }
+                }
+            }
+            nextStep();
+        }
+
+        function stopScalePlayback() {
+            isPlaying = false;
+            clearTimeout(playTimeout);
+            playTimeout = null;
+            document.querySelectorAll(".note").forEach(n => n.classList.remove("playing"));
+        }
+
+        // Permite tocar uma nota individual diretamente no braço, inclusive
+        // em telas sensíveis ao toque.
+        fretboardGridOverlay.addEventListener("click", async (event) => {
+            const noteEl = event.target.closest(".note.visible");
+            if (!noteEl) return;
+            stopScalePlayback();
+            noteEl.classList.add("playing");
+            try {
+                await playSampleTone(getFrequency(Number(noteEl.dataset.string), Number(noteEl.dataset.fret)));
+            } finally {
+                setTimeout(() => noteEl.classList.remove("playing"), 180);
+            }
+        });
+
+        const refreshScale = () => { stopScalePlayback(); renderScale(); };
+        document.getElementById("key-select").addEventListener("change", refreshScale);
+        scaleSelect.addEventListener("change", refreshScale);
+        document.getElementById("arpeggio-select").addEventListener("change", refreshScale);
+        document.getElementById("caged-select").addEventListener("change", refreshScale);
+
+        instrumentSelect.addEventListener("change", (e) => {
+            stopScalePlayback();
+            currentInstrument = e.target.value;
+            buildFretboard();
+        });
+
+        bpmSlider.addEventListener("input", (e) => {
+            bpm = Number(e.target.value);
+            bpmDisplay.innerText = bpm;
+        });
+
+        btnPlus.addEventListener("click", () => {
+            if (bpm < 300) {
+                bpm++;
+                bpmSlider.value = bpm;
+                bpmDisplay.innerText = bpm;
+            }
+        });
+
+        btnMinus.addEventListener("click", () => {
+            if (bpm > 40) {
+                bpm--;
+                bpmSlider.value = bpm;
+                bpmDisplay.innerText = bpm;
+            }
+        });
+
+        btnPlay.addEventListener("click", () => {
+            if (!isPlaying) {
+                clearTimeout(playTimeout);
+                isPlaying = true;
+                playScaleSequence();
+            }
+        });
+
+        btnPause.addEventListener("click", stopScalePlayback);
+
+        btnLoop.addEventListener("click", () => {
+            isLoop = !isLoop;
+            btnLoop.innerText = `LOOP: ${isLoop ? "ON" : "OFF"}`;
+            btnLoop.style.background = isLoop ? "#4caf50" : "#ff9800";
+        });
+
+        buildFretboard();
+    </script>
+
+    <!-- Script Integrado do PoliMetrônomo Pro -->
+    <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const state = {bpm:74,a:3,b:4,running:false,sound:true,visual:true,accent:true,cycle:0,step:0,nextTime:0,raf:0,lookahead:25,scheduleAhead:.12,tap:[]};
+      let audioCtx=null, timer=null;
+      const bpm=$('pm-bpmValue'), speed=$('speedLabel'), range=$('pm-tempoRange'), beat=$('beatText'), cycleText=$('cycleText');
+      function setBpm(v){state.bpm=Math.max(30,Math.min(220,Math.round(v)));bpm.textContent=state.bpm;speed.textContent=state.bpm;range.value=state.bpm}
+      function setRatio(){state.a=+$('ratioA').value;state.b=+$('ratioB').value;$('aName').textContent=state.a+' notas';$('bName').textContent=state.b+' notas';draw()}
+      function getAudio(){if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+      function tone(kind,when,vol,accent=false){if(!state.sound||vol<=0)return;const ac=getAudio(),o=ac.createOscillator(),g=ac.createGain();let f=kind==='kick'?accent?150:105:kind==='click'?accent?1550:1050:kind==='clave'?accent?920:680:accent?760:540;o.type=kind==='kick'?'sine':kind==='wood'?'triangle':'square';o.frequency.setValueAtTime(f,when);if(kind==='kick')o.frequency.exponentialRampToValueAtTime(55,when+.11);g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(Math.max(.0001,vol*(accent?1.35:1)),when+.004);g.gain.exponentialRampToValueAtTime(.0001,when+(kind==='kick'?.14:.075));o.connect(g).connect(ac.destination);o.start(when);o.stop(when+.18)}
+      function interval(){return 60/state.bpm}
+      function schedule(){while(state.nextTime < getAudio().currentTime+state.scheduleAhead){const common=state.a*state.b;const pos=state.step%common;const aHit=pos%(common/state.a)===0,bHit=pos%(common/state.b)===0;const at=state.nextTime;const aIndex=Math.round(pos/(common/state.a));const bIndex=Math.round(pos/(common/state.b));if(aHit)tone($('soundA').value,at,+$('volA').value/100,aIndex===0&&state.accent);if(bHit)tone($('soundB').value,at,+$('volB').value/100,bIndex===0&&state.accent);state.nextTime+=interval()/common;state.step=(state.step+1)%common;if(state.step===0)state.cycle++}}
+      function start(){if(state.running)return;getAudio();state.running=true;state.nextTime=audioCtx.currentTime+.04;timer=setInterval(schedule,state.lookahead);$('pm-start').classList.add('running');$('pm-start').style.background='#ff6b70';$('pm-start').style.borderColor='#ff6b70';$('pm-start').style.color='#fff';$('pm-start').querySelector('#startText').textContent='PARAR';animate()}
+      function stop(){state.running=false;clearInterval(timer);timer=null;$('pm-start').classList.remove('running');$('pm-start').style.background='#f7f8fb';$('pm-start').style.borderColor='#f7f8fb';$('pm-start').style.color='#09101a';$('pm-start').querySelector('#startText').textContent='INICIAR';beat.textContent='—';cycleText.textContent='ciclo '+state.cycle+' / '+(state.a*state.b);cancelAnimationFrame(state.raf);draw()}
+      function animate(){if(!state.running)return;draw();state.raf=requestAnimationFrame(animate)}
+      const canvas=$('orbit'),ctx=canvas.getContext('2d');
+      function draw(){const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2;ctx.clearRect(0,0,w,h);for(let r=72;r<=240;r+=56){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle=r===240?'#284353':'#1d2b3a';ctx.lineWidth=2;ctx.stroke()}ctx.strokeStyle='#21303d';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-250,cy);ctx.lineTo(cx+250,cy);ctx.moveTo(cx,cy-250);ctx.lineTo(cx,cy+250);ctx.stroke();const common=state.a*state.b;const progress=state.running?((state.step%common)/common):0;for(let i=0;i<state.a;i++){const ang=-Math.PI/2+(i/state.a)*Math.PI*2;drawNode(190,ang,'#20d7ee',i===Math.floor(progress*state.a)%state.a&&state.running,7)}for(let i=0;i<state.b;i++){const ang=-Math.PI/2+(i/state.b)*Math.PI*2;drawNode(128,ang,'#73e0bd',i===Math.floor(progress*state.b)%state.b&&state.running,6)}const ang=-Math.PI/2+progress*Math.PI*2;ctx.save();ctx.translate(cx,cy);ctx.rotate(ang);ctx.strokeStyle='#ffffff77';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(232,0);ctx.stroke();ctx.restore();if(state.running){beat.textContent=Math.floor(progress*common)+1;cycleText.textContent='ciclo '+(state.cycle+1)+' / '+common}else{cycleText.textContent='ciclo '+state.cycle+' / '+common}}
+      function drawNode(radius,ang,color,active,size){const cx=canvas.width/2,cy=canvas.height/2,x=cx+Math.cos(ang)*radius,y=cy+Math.sin(ang)*radius;ctx.beginPath();ctx.arc(x,y,active?size+9:size+3,0,Math.PI*2);ctx.fillStyle=active?color+'33':'#0e1722';ctx.fill();ctx.beginPath();ctx.arc(x,y,active?size:size-1,0,Math.PI*2);ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=active?18:4;ctx.fill();ctx.shadowBlur=0}
+      $('pm-start').onclick=()=>state.running?stop():start();$('soundBtn').onclick=()=>{state.sound=!state.sound;$('soundBtn').textContent='Som: '+(state.sound?'ON':'OFF');$('soundBtn').style.background=state.sound?'#20d7ee':'#141b27';$('soundBtn').style.color=state.sound?'#071117':'#b9c5d1'};$('visualBtn').onclick=()=>{state.visual=!state.visual;$('visualBtn').textContent='Visual: '+(state.visual?'ON':'OFF');canvas.style.opacity=state.visual?'1':'.12'};$('accentBtn').onclick=()=>{state.accent=!state.accent;$('accentBtn').textContent='Acento: '+(state.accent?'1':'—');};$('pm-plus').onclick=()=>setBpm(state.bpm+1);$('pm-minus').onclick=()=>setBpm(state.bpm-1);range.oninput=e=>setBpm(e.target.value);$('ratioA').onchange=setRatio;$('ratioB').onchange=setRatio;
+      $('volA').oninput=e=>$('volAValue').textContent=e.target.value+'%';$('volB').oninput=e=>$('volBValue').textContent=e.target.value+'%';document.querySelectorAll('.preset').forEach(p=>p.onclick=()=>{$('ratioA').value=p.dataset.a;$('ratioB').value=p.dataset.b;setBpm(p.dataset.bpm);setRatio()});$('tap').onclick=()=>{const now=Date.now();state.tap=state.tap.filter(t=>now-t<2000);state.tap.push(now);if(state.tap.length>1){const avg=(state.tap[state.tap.length-1]-state.tap[0])/(state.tap.length-1);setBpm(60000/avg)}if(state.tap.length>=6)state.tap.shift()};setRatio();draw();
+    })();
+    </script>
+</body>
+</html>
